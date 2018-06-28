@@ -1,12 +1,16 @@
 PODS:
-  - IBMMobileFirstPlatformFoundation (8.0.2016070718)
+  - IBMMobileFirstPlatformFoundation (8.0.2018040422)
 
 DEPENDENCIES:
   - IBMMobileFirstPlatformFoundation
 
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - IBMMobileFirstPlatformFoundation
+
 SPEC CHECKSUMS:
-  IBMMobileFirstPlatformFoundation: adfc8b080dcb484bc49d37a97863b706f0fb31cb
+  IBMMobileFirstPlatformFoundation: 6bc8dc89768e412decf259dcb3d5d0a8513c0ce9
 
 PODFILE CHECKSUM: fd838d2f18153fd8a209f82e244d044bee6b75d1
 
-COCOAPODS: 1.0.1
+COCOAPODS: 1.5.2

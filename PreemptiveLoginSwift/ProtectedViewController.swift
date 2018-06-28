@@ -22,59 +22,59 @@ class ProtectedViewController: UIViewController {
     @IBOutlet weak var helloUserLabel: UILabel!
     @IBOutlet weak var balanceLabel: UILabel!
     
-    let defaults = NSUserDefaults.standardUserDefaults()
+    let defaults = UserDefaults.standard
     var errMsg: String!
     var remainingAttempts: Int!
     
     // viewWillAppear
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         // Add notifications observers
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(loginRequired(_:)), name: LoginRequiredNotificationKey, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(loginRequired(_:)), name: NSNotification.Name(rawValue: LoginRequiredNotificationKey), object: nil)
     }
     
     // viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-        if(defaults.stringForKey("displayName") != nil){
-            self.helloUserLabel.text = "Hello, " + defaults.stringForKey("displayName")!
+        if(defaults.string(forKey: "displayName") != nil){
+            self.helloUserLabel.text = "Hello, " + defaults.string(forKey: "displayName")!
         }
         self.navigationItem.hidesBackButton = true;
     }
 
 
-    @IBAction func getBalanceClicked(sender: UIButton) {
-        let url = NSURL(string: "/adapters/ResourceAdapter/balance");
-        let request = WLResourceRequest(URL: url, method: WLHttpMethodGet);
-        request.sendWithCompletionHandler{ (response, error) -> Void in
+    @IBAction func getBalanceClicked(_ sender: UIButton) {
+        let url = URL(string: "/adapters/ResourceAdapter/balance");
+        let request = WLResourceRequest(url: url, method: WLHttpMethodGet);
+        request?.send{ (response, error) -> Void in
             if(error != nil){
-                NSLog("Failed to get balance. error: " + String(error))
+                NSLog("Failed to get balance. error: " + String(describing: error))
                 self.balanceLabel.text = "Failed to get balance...";
             }
             else if(response != nil){
-                self.balanceLabel.text = "Balance: " + response.responseText;
+                self.balanceLabel.text = "Balance: " + (response?.responseText)!;
             }
         }
     }
     
-    @IBAction func logoutClicked(sender: UIButton) {
-        navigationController?.popViewControllerAnimated(true)
-        NSNotificationCenter.defaultCenter().postNotificationName(LogoutNotificationKey, object: nil)
+    @IBAction func logoutClicked(_ sender: UIButton) {
+       _ =  navigationController?.popViewController(animated: true)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: LogoutNotificationKey), object: nil)
     }
     
     // loginRequired
-    func loginRequired(notification:NSNotification){
-        let userInfo = notification.userInfo as! Dictionary<String, AnyObject!>
+    func loginRequired(_ notification:Notification){
+        let userInfo = notification.userInfo as! Dictionary<String, AnyObject?>
         self.errMsg =  userInfo["errorMsg"] as! String
         self.remainingAttempts = userInfo["remainingAttempts"] as! Int
         
-        self.performSegueWithIdentifier("TimedOutSegue", sender: nil)
+        self.performSegue(withIdentifier: "TimedOutSegue", sender: nil)
     }
     
     // prepareForSegue (for TimedOutSegue)
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!)
     {
         if (segue.identifier == "TimedOutSegue") {
-            if let destination = segue.destinationViewController as? LoginViewController{
+            if let destination = segue.destination as? LoginViewController{
                 destination.errorViaSegue = self.errMsg
                 destination.remainingAttemptsViaSegue = self.remainingAttempts
             }
@@ -82,7 +82,7 @@ class ProtectedViewController: UIViewController {
     }
     
     // viewDidDisappear
-    override func viewDidDisappear(animated: Bool) {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self)
     }
 }
