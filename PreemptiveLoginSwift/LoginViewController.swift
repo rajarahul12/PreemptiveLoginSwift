@@ -29,7 +29,7 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var error: UILabel!
     
     // viewWillAppear
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         self.username.text = ""
         self.password.text = ""
         self.remainingAttempts.text = ""
@@ -42,9 +42,9 @@ class LoginViewController: UIViewController {
         }
         
         // Add notifications observers
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateLabels(_:)), name: LoginRequiredNotificationKey, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(loginSuccess), name: LoginSuccessNotificationKey, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(loginFailure(_:)), name: LoginFailureNotificationKey, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateLabels(_:)), name: NSNotification.Name(rawValue: LoginRequiredNotificationKey), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(loginSuccess), name: NSNotification.Name(rawValue: LoginSuccessNotificationKey), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(loginFailure(_:)), name: NSNotification.Name(rawValue: LoginFailureNotificationKey), object: nil)
     }
     
     // viewDidLoad
@@ -54,15 +54,15 @@ class LoginViewController: UIViewController {
     }
     
     // loginButtonClicked
-    @IBAction func loginButtonClicked(sender: UIButton) {
+    @IBAction func loginButtonClicked(_ sender: UIButton) {
         if(self.username.text != "" && self.password.text != ""){
-            NSNotificationCenter.defaultCenter().postNotificationName(LoginNotificationKey, object: nil, userInfo: ["username": username.text!, "password": password.text!])
+            NotificationCenter.default.post(name: Notification.Name(rawValue: LoginNotificationKey), object: nil, userInfo: ["username": username.text!, "password": password.text!])
         }
     }
     
     // updateLabels (triggered by LoginRequired notification)
-    func updateLabels(notification:NSNotification){
-        let userInfo = notification.userInfo as! Dictionary<String, AnyObject!>
+    func updateLabels(_ notification:Notification){
+        let userInfo = notification.userInfo as! Dictionary<String, AnyObject?>
         let errMsg = userInfo["errorMsg"] as! String
         let remainingAttempts = userInfo["remainingAttempts"] as! Int
         self.error.text = errMsg
@@ -71,21 +71,21 @@ class LoginViewController: UIViewController {
     
     // loginSuccess (triggered by LoginSuccess notification)
     func loginSuccess(){
-        self.performSegueWithIdentifier("FromLoginToBalancePageSegue", sender: nil)
+        self.performSegue(withIdentifier: "FromLoginToBalancePageSegue", sender: nil)
     }
     
     // cleanFieldsAndLabels (triggered by LoginFailure notification)
-    func loginFailure(notification:NSNotification){
-        let userInfo = notification.userInfo as! Dictionary<String, AnyObject!>
+    func loginFailure(_ notification:Notification){
+        let userInfo = notification.userInfo as! Dictionary<String, AnyObject?>
         let errMsg = userInfo["errorMsg"] as! String
         
         let alert = UIAlertController(title: "Error",
                                       message: errMsg,
-                                      preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         
-        dispatch_async(dispatch_get_main_queue()) {
-            self.presentViewController(alert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
         }
         
         self.username.text = ""
@@ -95,8 +95,8 @@ class LoginViewController: UIViewController {
     }
     
     // viewDidDisappear
-    override func viewDidDisappear(animated: Bool) {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self)
     }
 
 }
