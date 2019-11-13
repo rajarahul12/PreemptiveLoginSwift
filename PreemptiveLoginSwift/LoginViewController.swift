@@ -61,7 +61,7 @@ class LoginViewController: UIViewController {
     }
     
     // updateLabels (triggered by LoginRequired notification)
-    func updateLabels(_ notification:Notification){
+    @objc func updateLabels(_ notification:Notification){
         let userInfo = notification.userInfo as! Dictionary<String, AnyObject?>
         let errMsg = userInfo["errorMsg"] as! String
         let remainingAttempts = userInfo["remainingAttempts"] as! Int
@@ -70,12 +70,12 @@ class LoginViewController: UIViewController {
     }
     
     // loginSuccess (triggered by LoginSuccess notification)
-    func loginSuccess(){
+    @objc func loginSuccess(){
         self.performSegue(withIdentifier: "FromLoginToBalancePageSegue", sender: nil)
     }
     
     // cleanFieldsAndLabels (triggered by LoginFailure notification)
-    func loginFailure(_ notification:Notification){
+    @objc func loginFailure(_ notification:Notification){
         let userInfo = notification.userInfo as! Dictionary<String, AnyObject?>
         let errMsg = userInfo["errorMsg"] as! String
         

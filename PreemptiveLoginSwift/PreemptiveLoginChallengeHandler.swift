@@ -34,7 +34,7 @@ class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
     }
     
     // login (Triggered by Login Notification)
-    func login(_ notification:Notification){
+    @objc func login(_ notification:Notification){
         let userInfo = notification.userInfo as! Dictionary<String, AnyObject?>
         let username = userInfo["username"] as! String
         let password = userInfo["password"] as! String
@@ -53,7 +53,7 @@ class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
     }
     
     // logout (Triggered by Logout Notification)
-    func logout(){
+    @objc func logout(){
         WLAuthorizationManager.sharedInstance().logout(self.securityCheckName){
             (error) -> Void in
             if(error != nil){
@@ -73,7 +73,7 @@ class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
             errMsg = ""
         }
         else{
-            errMsg = challenge["errorMsg"] as! String
+            errMsg = (challenge["errorMsg"] as! String)
         }
         let remainingAttempts = challenge["remainingAttempts"]
         

@@ -62,10 +62,10 @@ class ProtectedViewController: UIViewController {
     }
     
     // loginRequired
-    func loginRequired(_ notification:Notification){
+    @objc func loginRequired(_ notification:Notification){
         let userInfo = notification.userInfo as! Dictionary<String, AnyObject?>
-        self.errMsg =  userInfo["errorMsg"] as! String
-        self.remainingAttempts = userInfo["remainingAttempts"] as! Int
+        self.errMsg =  (userInfo["errorMsg"] as! String)
+        self.remainingAttempts = (userInfo["remainingAttempts"] as! Int)
         
         self.performSegue(withIdentifier: "TimedOutSegue", sender: nil)
     }
