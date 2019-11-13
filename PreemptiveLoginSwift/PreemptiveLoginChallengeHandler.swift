@@ -15,18 +15,18 @@
  */
 
 import UIKit
-import IBMMobileFirstPlatformFoundation
+import IBMMobileFoundationSwift
 
-class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
+class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandlerSwift {
     var isChallenged: Bool
     let defaults = UserDefaults.standard
     let securityCheckName = "UserLogin"
     
     
-    override init(){
+    init(){
         self.isChallenged = false
-        super.init(securityCheck: "UserLogin")
-        WLClient.sharedInstance().registerChallengeHandler(self)
+        super.init(securityCheck: "UserLogin");
+        WLClientSwift.sharedInstance().registerChallengeHandler(challengeHandler: self)
         
         // Add notifications observers
         NotificationCenter.default.addObserver(self, selector: #selector(login(_:)), name: NSNotification.Name(rawValue: LoginNotificationKey), object: nil)
@@ -41,7 +41,7 @@ class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
         
         // If challenged use submitChallengeAnswer API, else use login API
         if(!self.isChallenged){
-            WLAuthorizationManager.sharedInstance().login(self.securityCheckName, withCredentials: ["username": username, "password": password]) { (error) -> Void in
+            WLAuthorizationManagerSwift.sharedInstance().login(securityCheck: self.securityCheckName, credentials: ["username": username, "password": password]) { (error) -> Void in
                 if(error != nil){
                     NSLog("Login failed" + String(describing: error))
                 }
@@ -54,7 +54,7 @@ class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
     
     // logout (Triggered by Logout Notification)
     @objc func logout(){
-        WLAuthorizationManager.sharedInstance().logout(self.securityCheckName){
+        WLAuthorizationManagerSwift.sharedInstance().logout(securityCheck: self.securityCheckName){
             (error) -> Void in
             if(error != nil){
                 NSLog("Logout failed" + String(describing: error))
@@ -65,27 +65,27 @@ class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
     }
     
     // handleChallenge
-    override func handleChallenge(_ challenge: [AnyHashable: Any]!) {
+    override open func handleChallenge(challengeResponse: [AnyHashable: Any]!) {
         self.isChallenged = true
         var errMsg: String!
         self.defaults.removeObject(forKey: "displayName")
-        if(challenge["errorMsg"] is NSNull){
+        if(challengeResponse["errorMsg"] is NSNull){
             errMsg = ""
         }
         else{
-            errMsg = (challenge["errorMsg"] as! String)
+            errMsg = (challengeResponse["errorMsg"] as! String)
         }
-        let remainingAttempts = challenge["remainingAttempts"]
+        let remainingAttempts = challengeResponse["remainingAttempts"]
         
         NotificationCenter.default.post(name: Notification.Name(rawValue: LoginRequiredNotificationKey), object: nil, userInfo: ["errorMsg":errMsg!, "remainingAttempts":remainingAttempts!])
         
     }
     
     // handleSuccess
-    override func handleSuccess(_ success: [AnyHashable: Any]!) {
+    override open func handleSuccess(successResponse: [AnyHashable: Any]!) {
            
         self.isChallenged = false
-        let user = success["user"]  as! [String:Any]
+        let user = successResponse["user"]  as! [String:Any]
         let displayName = user["displayName"] as! String
         print(displayName)
         self.defaults.set(displayName, forKey: "displayName")
@@ -94,10 +94,10 @@ class PreemptiveLoginChallengeHandler: SecurityCheckChallengeHandler {
     }
     
     // handleFailure
-    override func handleFailure(_ failure: [AnyHashable: Any]!) {
+    override open func handleFailure(failureResponse: [AnyHashable: Any]!) {
         self.isChallenged = false
-        if let _ = failure["failure"] as? String {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: LoginFailureNotificationKey), object: nil, userInfo: ["errorMsg":failure["failure"]!])
+        if let _ = failureResponse["failure"] as? String {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: LoginFailureNotificationKey), object: nil, userInfo: ["errorMsg":failureResponse["failure"]!])
         }
         else{
             NotificationCenter.default.post(name: Notification.Name(rawValue: LoginFailureNotificationKey), object: nil, userInfo: ["errorMsg":"Unknown error"])

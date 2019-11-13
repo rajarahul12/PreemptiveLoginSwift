@@ -15,7 +15,7 @@
  */
 
 import UIKit
-import IBMMobileFirstPlatformFoundation
+import IBMMobileFoundationSwift
 
 let LoginRequiredNotificationKey = "com.sample.PreemptiveLoginSwift.LoginRequiredNotificationKey"
 let LoginSuccessNotificationKey = "com.sample.PreemptiveLoginSwift.LoginSuccessNotificationKey"

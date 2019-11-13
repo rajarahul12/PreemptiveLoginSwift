@@ -15,7 +15,7 @@
  */
 
 import UIKit
-import IBMMobileFirstPlatformFoundation
+import IBMMobileFoundationSwift
 
 class LoginViewController: UIViewController {
     

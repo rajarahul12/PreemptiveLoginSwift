@@ -15,7 +15,7 @@
  */
 
 import UIKit
-import IBMMobileFirstPlatformFoundation
+import IBMMobileFoundationSwift
 
 class ProtectedViewController: UIViewController {
 
@@ -44,14 +44,16 @@ class ProtectedViewController: UIViewController {
 
     @IBAction func getBalanceClicked(_ sender: UIButton) {
         let url = URL(string: "/adapters/ResourceAdapter/balance");
-        let request = WLResourceRequest(url: url, method: WLHttpMethodGet);
-        request?.send{ (response, error) -> Void in
-            if(error != nil){
-                NSLog("Failed to get balance. error: " + String(describing: error))
-                self.balanceLabel.text = "Failed to get balance...";
+        let request = WLResourceRequestSwift.init(url: url!, method: WLResourceRequestSwift.WLHttpMethodGet)
+        request.send { (response, error) -> Void in
+            if(error == nil){
+                NSLog((response?.responseText)!)
+                self.balanceLabel.text = "Balance = " + (response?.responseText)!
+                
             }
-            else if(response != nil){
-                self.balanceLabel.text = "Balance: " + (response?.responseText)!;
+            else{
+                NSLog(error.debugDescription)
+                self.balanceLabel.text = "Failed to get balance"
             }
         }
     }
